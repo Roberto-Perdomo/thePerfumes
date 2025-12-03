@@ -1,3 +1,10 @@
+<script setup>
+// Recibimos la función desde App.vue
+const props = defineProps({
+  openRegisterModal: Function
+})
+</script>
+
 <template>
   <header class="header">
     <nav class="nav">
@@ -9,7 +16,18 @@
         <li><a href="#inicio" class="nav-link">Inicio</a></li>
         <li><a href="#sobre-mi" class="nav-link">Sobre la tienda</a></li>
         <li><a href="#portafolio" class="nav-link">Destacados</a></li>
-        <li><a href="#contacto" class="nav-link">Registrarse</a></li>
+
+        <!-- Aquí modificamos únicamente este enlace -->
+        <li>
+          <a 
+            href="#contacto"
+            class="nav-link"
+            @click.prevent="props.openRegisterModal"
+          >
+            Iniciar sesión
+          </a>
+        </li>
+
       </ul>
 
       <div class="nav-toggle" id="nav-toggle">
