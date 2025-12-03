@@ -1,11 +1,18 @@
+<script setup>
+import Header from './components/Header.vue'
+import Footer from './components/Footer.vue'
+</script>
+
+
 <template>
-  <Usuarios />
+  <div>
+    <Header />
+    <RouterView />
+    <Footer />
+  </div>
 </template>
 
-<script>
-import Usuarios from "./components/Usuarios.vue";
 
-export default {
-  components: { Usuarios }
-};
-</script>
+<style scoped>
+
+</style>
