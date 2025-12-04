@@ -1,3 +1,20 @@
+<script setup>
+import { ref } from 'vue'
+
+const isOpen = ref(false)
+const messages = ref(["¡Hola! Soy un bot predeterminado 😊"])
+const input = ref("")
+
+function sendMessage() {
+  if (!input.value.trim()) return
+  
+  messages.value.push("Tú: " + input.value)
+  messages.value.push("Bot: Este es un mensaje predeterminado 🤖")
+
+  input.value = ""
+}
+</script>
+
 <template>
   <div>
     <!-- Botón flotante con icono -->
@@ -34,29 +51,14 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
 
-const isOpen = ref(false)
-const messages = ref(["¡Hola! Soy un bot predeterminado 😊"])
-const input = ref("")
-
-function sendMessage() {
-  if (!input.value.trim()) return
-  
-  messages.value.push("Tú: " + input.value)
-  messages.value.push("Bot: Este es un mensaje predeterminado 🤖")
-
-  input.value = ""
-}
-</script>
 
 <style scoped>
 .chat-button {
   position: fixed;
   bottom: 25px;
   right: 25px;
-  background: #4f46e5;
+  background: #121213;
   border-radius: 50%;
   width: 60px;
   height: 60px;
@@ -81,7 +83,7 @@ function sendMessage() {
 }
 
 .chat-header {
-  background: #4f46e5;
+  background: #171718;
   color: white;
   padding: 10px;
   font-weight: bold;
@@ -114,7 +116,7 @@ function sendMessage() {
 }
 
 .chat-footer button {
-  background: #4f46e5;
+  background: #141414;
   color: white;
   border: none;
   padding: 10px;

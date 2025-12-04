@@ -1,48 +1,36 @@
-const express = require("express");
-const sqlite3 = require("sqlite3").verbose();
-const cors = require("cors");
-const path = require("path");
+const express = require('express');
+const cors = require('cors');
+const db = require('./db');
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// Conexión a la base de datos SQLite
-const db = new sqlite3.Database(path.resolve(__dirname, "database.sqlite"));
+// Ruta para registrar usuario
+app.post('/register', (req, res) => {
+    const { username, email, password } = req.body;
 
-// Crear tabla si no existe
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT
-    )
-  `);
-});
-
-// Obtener todos los usuarios
-app.get("/users", (req, res) => {
-  db.all("SELECT * FROM users", [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
-});
-
-// Crear nuevo usuario
-app.post("/users", (req, res) => {
-  const { name } = req.body;
-  db.run(
-    "INSERT INTO users (name) VALUES (?)",
-    [name],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-
-      res.json({ id: this.lastID, name });
+    if (!username || !email || !password) {
+        return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
-  );
+
+    try {
+        const stmt = db.prepare(`
+            INSERT INTO users (username, email, password)
+            VALUES (?, ?, ?)
+        `);
+
+        const result = stmt.run(username, email, password);
+
+        res.json({ success: true, userId: result.lastInsertRowid });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al registrar usuario' });
+    }
 });
 
-// Servidor
 app.listen(3000, () => {
-  console.log("Backend corriendo en http://localhost:3000");
+    console.log("Servidor backend corriendo en puerto 3000");
 });

@@ -9,6 +9,7 @@
         <li><a href="#inicio" class="nav-link">Inicio</a></li>
         <li><a href="#sobre-mi" class="nav-link">Sobre la tienda</a></li>
         <li><a href="#portafolio" class="nav-link">Destacados</a></li>
+        <li><a href="#Perfumes" class="nav-link">Perfumes</a></li>
         <li><a href="#contacto" class="nav-link">Registrarse</a></li>
       </ul>
 
