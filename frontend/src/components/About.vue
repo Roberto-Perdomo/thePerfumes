@@ -2,7 +2,7 @@
   <section id="sobre-mi" class="about">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">SOBRE LA TIENDA</h2>
+        <h2 class="section-title">SOBRE NOSOTROS</h2>
         <p class="section-subtitle">CONOCE MAS SOBRE LEE PERFUM</p>
       </div>
 

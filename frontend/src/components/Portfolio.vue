@@ -2,7 +2,7 @@
   <section id="portafolio" class="portfolio">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">PERFUMES DESTACADOS</h2>
+        <h2 class="section-title">PERFUMES DESTACADOS CONFORME A NUESTRO CATALOGO</h2>
       </div>
 
       <div class="portfolio-grid">
@@ -34,6 +34,7 @@
 </template>
 
 <script setup>
+
 const items = [
   {
     img: '../assets/img/WSd.webp',
