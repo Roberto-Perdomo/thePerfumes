@@ -2,77 +2,52 @@
   <transition name="modal-fade">
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-container">
+
         <!-- Botón cerrar -->
         <button @click="closeModal" class="close-btn" aria-label="Cerrar">&times;</button>
 
         <div class="modal-header">
-          <h2>Únete a Nuestra Boutique</h2>
-          <p>Descubre fragancias exclusivas</p>
+          <h2>Iniciar Sesión</h2>
+          <p>Bienvenido de nuevo</p>
         </div>
 
-        <form @submit.prevent="handleSubmit" class="register-form">
-          <div class="form-group">
-            <label for="name">Nombre Completo</label>
-            <input 
-              type="text" 
-              id="name" 
-              v-model="formData.name" 
-              required
-              placeholder="Ingresa tu nombre"
-            />
-          </div>
+        <form @submit.prevent="handleLoginSubmit" class="login-form">
 
           <div class="form-group">
             <label for="email">Correo Electrónico</label>
             <input 
-              type="email" 
-              id="email" 
-              v-model="formData.email" 
+              type="email"
+              id="email"
+              v-model="loginData.email"
               required
               placeholder="tu@email.com"
             />
           </div>
 
           <div class="form-group">
-            <label for="phone">Teléfono</label>
-            <input 
-              type="tel" 
-              id="phone" 
-              v-model="formData.phone" 
-              placeholder="+57 300 123 4567"
-            />
-          </div>
-
-          <div class="form-group">
             <label for="password">Contraseña</label>
             <input 
-              type="password" 
-              id="password" 
-              v-model="formData.password" 
+              type="password"
+              id="password"
+              v-model="loginData.password"
               required
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Tu contraseña"
             />
-          </div>
-
-          <div class="form-group checkbox-group">
-            <input 
-              type="checkbox" 
-              id="newsletter" 
-              v-model="formData.newsletter"
-            />
-            <label for="newsletter">
-              Quiero recibir ofertas y novedades sobre perfumes
-            </label>
           </div>
 
           <button type="submit" class="submit-btn">
-            Crear Cuenta
+            Entrar
           </button>
         </form>
 
         <div class="modal-footer">
-          <p>¿Ya tienes cuenta? <a href="#" @click.prevent="handleLogin">Inicia Sesión</a></p>
+          <p>¿No tienes cuenta? 
+            <a href="#" @click.prevent="openRegister">
+              Crear una cuenta
+            </a>
+          </p>
         </div>
+
       </div>
     </div>
   </transition>
@@ -80,7 +55,7 @@
 
 <script>
 export default {
-  name: "RegisterModal",
+  name: "LoginModal",
 
   props: {
     showModal: {
@@ -89,17 +64,13 @@ export default {
     }
   },
 
-  // ✅ SE AGREGÓ open-login
-  emits: ["close", "open-login"],
+  emits: ["close", "open-register"],
 
   data() {
     return {
-      formData: {
-        name: "",
+      loginData: {
         email: "",
-        phone: "",
-        password: "",
-        newsletter: false
+        password: ""
       }
     };
   },
@@ -109,25 +80,20 @@ export default {
       this.$emit("close");
     },
 
-    handleSubmit() {
-      alert(`¡Bienvenido/a ${this.formData.name}! Tu cuenta ha sido creada.`);
+    handleLoginSubmit() {
+      alert(`Bienvenido nuevamente, ${this.loginData.email}`);
       this.resetForm();
       this.closeModal();
     },
 
-    // ✅ AHORA ENVÍA EL EVENTO PARA ABRIR LOGIN
-    handleLogin() {
-      this.$emit("open-login");
-      this.closeModal();
+    openRegister() {
+      this.$emit("open-register");  // 👈 Envía evento a App.vue
     },
 
     resetForm() {
-      this.formData = {
-        name: "",
+      this.loginData = {
         email: "",
-        phone: "",
-        password: "",
-        newsletter: false
+        password: ""
       };
     }
   }
@@ -135,9 +101,7 @@ export default {
 </script>
 
 <style scoped>
-/* --- Tu CSS original (sin cambios) --- */
-
-/* (todo tu CSS intacto aquí, no modifiqué nada) */
+/* Reutiliza tu mismo estilo del RegisterModal */
 
 .modal-overlay {
   position: fixed;
@@ -206,7 +170,7 @@ export default {
   font-style: italic;
 }
 
-.register-form {
+.login-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -224,9 +188,7 @@ export default {
   font-size: 14px;
 }
 
-.form-group input[type="text"],
 .form-group input[type="email"],
-.form-group input[type="tel"],
 .form-group input[type="password"] {
   padding: 12px 16px;
   border: 2px solid #e0e0e0;
@@ -237,18 +199,7 @@ export default {
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
-}
-
-.checkbox-group {
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-}
-
-.checkbox-group label {
-  font-size: 13px;
-  color: #666;
+  border-color: #000000;
 }
 
 .submit-btn {
@@ -276,13 +227,8 @@ export default {
   border-top: 1px solid #e0e0e0;
 }
 
-.modal-footer p {
-  color: #666;
-  font-size: 14px;
-}
-
 .modal-footer a {
-  color: #000000;
+  color: #020202;
   font-weight: 600;
   text-decoration: none;
 }
@@ -291,6 +237,7 @@ export default {
   text-decoration: underline;
 }
 
+/* Animación */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity 0.3s;
@@ -315,7 +262,4 @@ export default {
     opacity: 1;
   }
 }
-
-/* ... resto del CSS sin cambios ... */
 </style>
-

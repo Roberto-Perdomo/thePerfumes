@@ -15,7 +15,15 @@
 
           <div class="hero-buttons">
             <a href="#portafolio" class="btn btn-primary">VER</a>
-            <a href="#contacto" class="btn btn-secondary">UNETE A NOSOTROS</a>
+
+            <!-- BOTÓN PARA ABRIR REGISTERMODAL -->
+            <button 
+              class="btn btn-secondary"
+              @click="props.openRegisterModal"
+            >
+              ÚNETE A NOSOTROS
+            </button>
+
           </div>
         </div>
 
@@ -28,3 +36,13 @@
     </div>
   </section>
 </template>
+
+<script setup>
+// Recibir la función enviada desde HomeView.vue
+const props = defineProps({
+  openRegisterModal: Function
+})
+</script>
+
+<style scoped>
+</style>

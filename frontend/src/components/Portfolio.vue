@@ -7,14 +7,81 @@
 
       <div class="portfolio-grid">
 
-        <div class="portfolio-item" v-for="(item, i) in items" :key="i">
+        <!-- ITEM 1 -->
+        <div class="portfolio-item">
           <div class="portfolio-image">
-            <img :src="item.img" :alt="item.title">
+            <img src="../assets/img/WSd.webp" alt="Perfume Valentino - Born in Roma Uomo Yellow EDT">
 
             <div class="portfolio-overlay">
               <div class="portfolio-content">
-                <h3>{{ item.title }}</h3>
-                <p>{{ item.description }}</p>
+                <h3>Perfume Valentino</h3>
+                <p>Born in Roma Uomo Yellow EDT 100 ml</p>
+
+                <div class="portfolio-links">
+                  <a href="#" class="portfolio-link">
+                    <i class="fas fa-external-link-alt"></i>
+                  </a>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ITEM 2 -->
+        <div class="portfolio-item">
+          <div class="portfolio-image">
+            <img src="../assets/img/wv.webp" alt="Perfume Valentino - Born in Roma Uomo EDT">
+
+            <div class="portfolio-overlay">
+              <div class="portfolio-content">
+                <h3>Perfume Valentino</h3>
+                <p>Born in Roma Uomo EDT 100 ml</p>
+
+                <div class="portfolio-links">
+                  <a href="#" class="portfolio-link">
+                    <i class="fas fa-external-link-alt"></i>
+                  </a>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ITEM 3 -->
+        <div class="portfolio-item">
+          <div class="portfolio-image">
+            <img src="../assets/img/SDL.webp" alt="Perfume Valentino - Extradose Donna">
+
+            <div class="portfolio-overlay">
+              <div class="portfolio-content">
+                <h3>Perfume Valentino</h3>
+                <p>Extradose Donna EDP 100 ml</p>
+
+                <div class="portfolio-links">
+                  <a href="#" class="portfolio-link">
+                    <i class="fas fa-external-link-alt"></i>
+                  </a>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ITEM 4 -->
+        <div class="portfolio-item">
+          <div class="portfolio-image">
+            <img src="../assets/img/XSL.webp" alt="Perfume Valentino - Born in Roma Intense Donna">
+
+            <div class="portfolio-overlay">
+              <div class="portfolio-content">
+                <h3>Perfume Valentino</h3>
+                <p>Born in Roma Intense Donna EDP 100 ml</p>
 
                 <div class="portfolio-links">
                   <a href="#" class="portfolio-link">
@@ -32,28 +99,3 @@
     </div>
   </section>
 </template>
-
-<script setup>
-const items = [
-  {
-    img: '../assets/img/WSd.webp',
-    title: 'Perfume Valentino',
-    description: 'Born in Roma Uomo Yellow EDT 100 ml'
-  },
-  {
-    img: '../assets/img/wv.webp',
-    title: 'Perfume Valentino',
-    description: 'Born in Roma Uomo EDT 100 ml'
-  },
-  {
-    img: '../assets/img/SDL.webp',
-    title: 'Perfume Valentino',
-    description: 'Extradose Donna EDP 100 ml'
-  },
-  {
-    img: '../assets/img/XSL.webp',
-    title: 'Perfume Valentino',
-    description: 'Born in Roma Intense Donna EDP 100 ml'
-  }
-]
-</script>

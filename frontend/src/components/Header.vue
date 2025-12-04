@@ -14,7 +14,7 @@ const props = defineProps({
 
       <ul class="nav-menu" id="nav-menu">
         <li><a href="#inicio" class="nav-link">Inicio</a></li>
-        <li><a href="#sobre-mi" class="nav-link">Sobre la tienda</a></li>
+        <li><a href="#sobre-mi" class="nav-link">Sobre Nosotros</a></li>
         <li><a href="#portafolio" class="nav-link">Destacados</a></li>
 
         <!-- Aquí modificamos únicamente este enlace -->
