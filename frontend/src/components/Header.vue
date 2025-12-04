@@ -13,9 +13,11 @@ const props = defineProps({
       </div>
 
       <ul class="nav-menu" id="nav-menu">
-        <li><a href="#inicio" class="nav-link">Inicio</a></li>
+
+ <li><router-link to="/" class="nav-link">inicio</router-link></li>
         <li><a href="#sobre-mi" class="nav-link">Sobre Nosotros</a></li>
         <li><a href="#portafolio" class="nav-link">Destacados</a></li>
+        <li><router-link to="/catalogo" class="nav-link">Perfumes</router-link></li>
 
         <!-- Aquí modificamos únicamente este enlace -->
         <li>
@@ -27,7 +29,6 @@ const props = defineProps({
             Iniciar sesión
           </a>
         </li>
-
       </ul>
 
       <div class="nav-toggle" id="nav-toggle">

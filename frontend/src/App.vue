@@ -1,9 +1,11 @@
+
 <script setup>
 import { ref } from 'vue'
 import Header from './components/Header.vue'
 import Footer from './components/Footer.vue'
 import RegisterModal from './components/RegisterModal.vue'
 import LoginModal from './components/LoginModal.vue'
+import Chatbot from './components/Chatbot.vue';
 
 // Estados de los modales
 const showRegisterModal = ref(false)
@@ -46,7 +48,7 @@ function switchToRegister() {
 </script>
 
 <template>
-  <div>
+ <div class="layout">
     <!-- Enviar funciones al Header -->
     <Header 
       :openRegisterModal="openRegisterModal"
@@ -69,10 +71,23 @@ function switchToRegister() {
       @open-register="switchToRegister"
     />
 
-    <RouterView />
+    <div id="app">
+    <router-view />
+    </div>
+
     <Footer />
+
+    <Chatbot />
   </div>
 </template>
 
 <style scoped>
+
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* OCUPA TODA LA PANTALLA */
+}
+
 </style>
