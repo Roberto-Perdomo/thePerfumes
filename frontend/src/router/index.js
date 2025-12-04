@@ -9,29 +9,23 @@ const routes = [
     name: 'home',
     component: HomeView
   },
-
-    {
+  {
     path: '/catalogo',
     name: 'catalogo',
     component: CatalogView
   }
 ]
 
-
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    { path: '/', component: HomeView },
-    { path: '/tienda', component: TiendaView }
+  routes,
 
-  ],
-
-  // 👇 Esto es lo que te faltaba
+  // Scroll suave a anclas (#inicio, #contacto, etc)
   scrollBehavior(to) {
     if (to.hash) {
       return {
         el: to.hash,
-        behavior: 'smooth',
+        behavior: 'smooth'
       }
     }
     return { top: 0 }
