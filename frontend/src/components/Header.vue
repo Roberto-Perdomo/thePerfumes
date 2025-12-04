@@ -6,10 +6,10 @@
       </div>
 
       <ul class="nav-menu" id="nav-menu">
-        <li><a href="#inicio" class="nav-link">Inicio</a></li>
+        <li><router-link to="/" class="nav-link">Inicio</router-link></li>
         <li><a href="#sobre-mi" class="nav-link">Sobre la tienda</a></li>
         <li><a href="#portafolio" class="nav-link">Destacados</a></li>
-        <li><a href="#Perfumes" class="nav-link">Perfumes</a></li>
+        <li><router-link to="/catalogo" class="nav-link">Perfumes</router-link></li>
         <li><a href="#contacto" class="nav-link">Registrarse</a></li>
       </ul>
 

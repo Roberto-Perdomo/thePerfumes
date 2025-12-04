@@ -8,7 +8,11 @@ import Chatbot from './components/Chatbot.vue';
 <template>
   <div>
     <Header />
-    <RouterView />
+
+     <div id="app">
+    <router-view />
+    </div>
+    
     <Footer />
     <Chatbot />
   </div>
