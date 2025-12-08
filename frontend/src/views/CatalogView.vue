@@ -1,49 +1,20 @@
 <template>
   <div>
 
-    <!-- 🔥 Botón flotante del carrito -->
-    <div class="cart-button" @click="cartOpen = !cartOpen">
-      🛒 <span class="count">{{ cartCount }}</span>
-    </div>
+    <!-- 🔥 Carrito como componente -->
+    <Carrito
+      :cart="cart"
+      :open="cartOpen"
+      :total="total"
+      :totalItems="cartCount"
+      @toggle="cartOpen = !cartOpen"
+      @increase="increaseQty"
+      @decrease="decreaseQty"
+      @pay="goToPayment"
 
-    <!-- 🔥 Panel lateral del carrito -->
-    <div class="cart-panel" v-if="cartOpen">
-      <h2>Tu Carrito</h2>
+    />
 
-      <div v-if="cart.length === 0" class="empty">
-        El carrito está vacío.
-      </div>
-
-      <div v-for="item in cart" :key="item.id" class="cart-item">
-        <img :src="item.imagen" />
-        <div class="info">
-          <p>{{ item.nombre }}</p>
-          <p class="precio">${{ item.precio }}</p>
-
-          <!-- Cantidades -->
-          <div class="qty-controls">
-            <button @click="decreaseQty(item)">−</button>
-            <span>{{ item.qty }}</span>
-            <button @click="increaseQty(item)">+</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Total -->
-      <div class="cart-total">
-        Total: <strong>${{ total }}</strong>
-      </div>
-
-      <button class="pay-btn" @click="showPayment = true">
-        Proceder al pago
-      </button>
-
-      <button class="close-cart" @click="cartOpen = false">
-        Cerrar
-      </button>
-    </div>
-
-    <!-- 🔥 Modal de pago -->
+    <!-- Modal de pago -->
     <div class="modal" v-if="showPayment">
       <div class="modal-box">
         <h2>Pago</h2>
@@ -59,7 +30,7 @@
       </div>
     </div>
 
-    <!-- 🔥 CONTENIDO ORIGINAL DEL CATÁLOGO -->
+    <!-- Contenido original del catálogo -->
     <div class="container">
       <CatalogSearch v-model="search" />
 
@@ -81,56 +52,50 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-
-/* Componentes existentes */
+import { ref, computed, watch } from 'vue'
 import CatalogSearch from '../components/catalog/CatalogSearch.vue'
 import CatalogFilters from '../components/catalog/CatalogFilters.vue'
 import ProductsGrid from '../components/catalog/ProductsGrid.vue'
+import Carrito from '../components/catalog/Carrito.vue'
+import { useRouter } from "vue-router"
+const router = useRouter()
 
-/* Base de datos */
+/* Base de datos (igual que antes) */
 const perfumes = [
-  {
-    id: 1,
-    nombre: "Noir Élégance",
-    categoria: "amaderado",
-    precio: 89.99,
-    descripcion: "Notas de cedro, vetiver y cuero",
-    volumen: "100ml",
-    imagen: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400&h=500&fit=crop"
-  },
-  {
-    id: 2,
-    nombre: "Arctic Storm",
-    categoria: "fresco",
-    precio: 75.99,
-    descripcion: "Cítricos con menta y bergamota",
-    volumen: "100ml",
-    imagen: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&h=500&fit=crop"
-  },
-  {
-    id: 3,
-    nombre: "Shadow King",
-    categoria: "oriental",
-    precio: 95.99,
-    descripcion: "Ámbar, especias y vainilla oscura",
-    volumen: "100ml",
-    imagen: "https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=500&fit=crop"
-  }
+  { id: 1, nombre: "Noir Élégance", categoria: "amaderado", precio: 89.99,
+    descripcion: "Notas de cedro, vetiver y cuero", volumen: "100ml",
+    imagen: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400&h=500&fit=crop" },
+  { id: 2, nombre: "Arctic Storm", categoria: "fresco", precio: 75.99,
+    descripcion: "Cítricos con menta y bergamota", volumen: "100ml",
+    imagen: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&h=500&fit=crop" },
+  { id: 3, nombre: "Shadow King", categoria: "oriental", precio: 95.99,
+    descripcion: "Ámbar, especias y vainilla oscura", volumen: "100ml",
+    imagen: "https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=500&fit=crop" }
 ]
 
 /* Estados */
 const search = ref('')
 const category = ref('todos')
 
-/* 🛒 Carrito */
-const cart = ref([])
+/* Carrito: inicializa desde localStorage si existe */
+const CART_KEY = 'cart-data'
+const cart = ref(JSON.parse(localStorage.getItem(CART_KEY) || '[]'))
+
 const cartOpen = ref(false)
 const showPayment = ref(false)
 
-/* Total de items */
+/* Bandera para evitar que el watcher reescriba justo mientras limpiamos */
+const persistenceDisabled = ref(false)
+
+/* Guardar carrito cada vez que cambie (salvo cuando persistenceDisabled = true) */
+watch(cart, (value) => {
+  if (persistenceDisabled.value) return
+  localStorage.setItem(CART_KEY, JSON.stringify(value))
+}, { deep: true })
+
+/* Cantidad total */
 const cartCount = computed(() =>
-  cart.value.reduce((sum, item) => sum + item.qty, 0)
+  cart.value.reduce((sum, item) => sum + (item.qty || 0), 0)
 )
 
 /* Filtrar productos */
@@ -147,15 +112,13 @@ const filteredProducts = computed(() => {
   })
 })
 
-/* Agregar al carrito */
+/* Funciones del carrito */
 function addToCart(product) {
   const found = cart.value.find(p => p.id === product.id)
-
   if (found) found.qty++
   else cart.value.push({ ...product, qty: 1 })
 }
 
-/* + / − cantidad */
 function increaseQty(item) {
   item.qty++
 }
@@ -165,119 +128,44 @@ function decreaseQty(item) {
   else cart.value = cart.value.filter(p => p.id !== item.id)
 }
 
-/* TOTAL */
 const total = computed(() =>
-  cart.value.reduce((sum, item) => sum + item.precio * item.qty, 0).toFixed(2)
+  cart.value.reduce((sum, item) => sum + (item.precio * (item.qty || 0)), 0).toFixed(2)
 )
 
-/* Completar pago */
+/* Navegar a pago */
+function goToPayment() {
+  router.push({ path: '/pago', query: { total: total.value } })
+}
+
 function completePayment() {
   alert("Pago completado con éxito!")
+
+  // 👇 evita que el watcher vuelva a escribir
+  persistenceDisabled.value = true
+
+  // 👇 limpia todo
   cart.value = []
+  localStorage.setItem(CART_KEY, JSON.stringify([]))
+
+  // 👇 reactiva persistencia 50ms después 
+  setTimeout(() => {
+    persistenceDisabled.value = false
+  }, 50)
+
+  // Cerrar modales
   showPayment.value = false
   cartOpen.value = false
+
+  // Redirigir si quieres
+  router.push('/catalogo')
 }
+
 </script>
 
+
+
+
 <style scoped>
-/* Botón flotante */
-.cart-button {
-  position: fixed;
-  bottom: 840px;
-  right: 20px;
-  background: black;
-  color: white;
-  padding: 12px 18px;
-  border-radius: 50px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  z-index: 3000;
-  font-size: 18px;
-}
-
-.cart-button .count {
-  background: red;
-  padding: 3px 7px;
-  border-radius: 20px;
-  font-size: 14px;
-}
-
-/* Panel del carrito */
-.cart-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 320px;
-  height: 100vh;
-  background: white;
-  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.15);
-  padding: 20px;
-  z-index: 4000;
-  overflow-y: auto;
-}
-
-.cart-item {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-  align-items: center;
-}
-
-.cart-item img {
-  width: 60px;
-  height: 70px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.qty-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.qty-controls button {
-  width: 26px;
-  height: 26px;
-  border: none;
-  background: black;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.cart-total {
-  margin-top: 20px;
-  font-size: 18px;
-  text-align: right;
-}
-
-.pay-btn {
-  width: 100%;
-  padding: 10px;
-  background: green;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  margin-top: 20px;
-  cursor: pointer;
-}
-
-.close-cart {
-  width: 100%;
-  padding: 10px;
-  background: black;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  margin-top: 20px;
-  cursor: pointer;
-}
-
-/* Modal */
 .modal {
   position: fixed;
   top: 0;
