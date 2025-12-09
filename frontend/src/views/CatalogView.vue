@@ -183,7 +183,7 @@ function completePayment() {
 /* Botón flotante */
 .cart-button {
   position: fixed;
-  bottom: 840px;
+  bottom: auto;
   right: 20px;
   background: black;
   color: white;
