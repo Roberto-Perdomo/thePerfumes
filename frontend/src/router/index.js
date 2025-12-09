@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import HomeView from '@/views/HomeView.vue'
 import CatalogView from '@/views/CatalogView.vue'
+import PagoView from '@/views/PagoView.vue'
 
 const routes = [
   {
@@ -13,6 +14,11 @@ const routes = [
     path: '/catalogo',
     name: 'catalogo',
     component: CatalogView
+  },
+  {
+    path: "/pago",
+      name: "Pago",
+      component: () => import("../views/PagoView.vue")
   }
 ]
 

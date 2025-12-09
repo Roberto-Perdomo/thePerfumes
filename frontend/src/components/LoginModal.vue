@@ -52,7 +52,6 @@
     </div>
   </transition>
 </template>
-
 <script>
 export default {
   name: "LoginModal",
@@ -64,14 +63,16 @@ export default {
     }
   },
 
-  emits: ["close", "open-register"],
+  emits: ["close", "open-register", "login-success"],
 
   data() {
     return {
       loginData: {
         email: "",
-        password: ""
-      }
+        password: "",
+        phone: ""   // ← agregado
+      },
+      errorMsg: ""
     };
   },
 
@@ -80,25 +81,54 @@ export default {
       this.$emit("close");
     },
 
-    handleLoginSubmit() {
-      alert(`Bienvenido nuevamente, ${this.loginData.email}`);
-      this.resetForm();
-      this.closeModal();
+    async handleLoginSubmit() {
+      this.errorMsg = "";
+
+      try {
+        const response = await fetch("http://localhost:3000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(this.loginData)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          this.errorMsg = data.error || "Credenciales inválidas.";
+          return;
+        }
+
+        // Guardar usuario en localStorage
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        this.$emit("login-success", data.user);
+
+        alert(`Bienvenido ${data.user.username} 👋`);
+
+        this.resetForm();
+        this.closeModal();
+
+      } catch (error) {
+        console.error(error);
+        this.errorMsg = "Error al conectar con el servidor.";
+      }
     },
 
     openRegister() {
-      this.$emit("open-register");  // 👈 Envía evento a App.vue
+      this.$emit("open-register");
     },
 
     resetForm() {
-      this.loginData = {
-        email: "",
-        password: ""
+      this.loginData = { 
+        email: "", 
+        password: "",
+        phone: ""  // ← limpiar phone también
       };
     }
   }
 };
 </script>
+
 
 <style scoped>
 /* Reutiliza tu mismo estilo del RegisterModal */
