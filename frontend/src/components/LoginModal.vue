@@ -52,6 +52,8 @@
     </div>
   </transition>
 </template>
+
+
 <script>
 export default {
   name: "LoginModal",
@@ -69,8 +71,7 @@ export default {
     return {
       loginData: {
         email: "",
-        password: "",
-        phone: ""   // ← agregado
+        password: ""
       },
       errorMsg: ""
     };
@@ -85,16 +86,22 @@ export default {
       this.errorMsg = "";
 
       try {
+        // Convertir los nombres al formato que usa el backend
+        const payload = {
+          correo: this.loginData.email,
+          contraseña: this.loginData.password
+        };
+
         const response = await fetch("http://localhost:3000/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(this.loginData)
+          body: JSON.stringify(payload)
         });
 
         const data = await response.json();
 
-        if (!response.ok || !data.success) {
-          this.errorMsg = data.error || "Credenciales inválidas.";
+        if (!response.ok) {
+          this.errorMsg = data.error || "Error en el inicio de sesión.";
           return;
         }
 
@@ -103,14 +110,14 @@ export default {
 
         this.$emit("login-success", data.user);
 
-        alert(`Bienvenido ${data.user.username} 👋`);
+        alert(`Bienvenido nuevamente, ${data.user.nombre} 👋`);
 
         this.resetForm();
         this.closeModal();
 
       } catch (error) {
         console.error(error);
-        this.errorMsg = "Error al conectar con el servidor.";
+        this.errorMsg = "No se pudo conectar al servidor.";
       }
     },
 
@@ -121,13 +128,13 @@ export default {
     resetForm() {
       this.loginData = { 
         email: "", 
-        password: "",
-        phone: ""  // ← limpiar phone también
+        password: ""
       };
     }
   }
 };
 </script>
+
 
 
 <style scoped>

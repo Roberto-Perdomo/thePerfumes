@@ -89,7 +89,6 @@ export default {
     }
   },
 
-  // ✅ SE AGREGÓ open-login
   emits: ["close", "open-login"],
 
   data() {
@@ -109,13 +108,39 @@ export default {
       this.$emit("close");
     },
 
-    handleSubmit() {
-      alert(`¡Bienvenido/a ${this.formData.name}! Tu cuenta ha sido creada.`);
-      this.resetForm();
-      this.closeModal();
-    },
+    // -------------- REGISTRO CON BACKEND ------------------
+    async handleSubmit() {
+      try {
+        const response = await fetch("http://localhost:3000/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nombre: this.formData.name,         // 👈 COINCIDE CON server.js
+            correo: this.formData.email,        // 👈 COINCIDE
+            telefono: this.formData.phone,      // 👈 COINCIDE
+            contraseña: this.formData.password  // 👈 COINCIDE
+          })
+        });
 
-    // ✅ AHORA ENVÍA EL EVENTO PARA ABRIR LOGIN
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || "Error registrando usuario");
+          return;
+        }
+
+        alert(data.message); // "Usuario registrado exitosamente"
+
+        this.resetForm();
+        this.closeModal();
+
+      } catch (error) {
+        console.error("Error:", error);
+        alert("No se pudo conectar con el servidor");
+      }
+    },
+    // -------------------------------------------------------
+
     handleLogin() {
       this.$emit("open-login");
       this.closeModal();
@@ -133,6 +158,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 /* --- Tu CSS original (sin cambios) --- */

@@ -1,83 +1,57 @@
-const express = require('express');
-const cors = require('cors');
-let db = require('./db'); // Puede ser SQLite o MySQL según db.js
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const bcrypt = require("bcryptjs");
+const db = require("./db");
 
 const app = express();
-
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
 
+// REGISTRO DE USUARIO
+app.post("/register", (req, res) => {
+    const { nombre, correo, telefono, contraseña } = req.body;
 
-// Ruta para registrar usuario
-app.post('/register', async (req, res) => {
-    const { username, email, password, phone } = req.body;
+    // Encriptar contraseña
+    const hash = bcrypt.hashSync(contraseña, 10);
 
-    if (!username || !email || !password || !phone) {
-        return res.status(400).json({ error: 'Todos los campos son obligatorios' });
-    }
+    const sql = "INSERT INTO users (nombre, correo, telefono, contraseña) VALUES (?, ?, ?, ?)";
+    db.query(sql, [nombre, correo, telefono, hash], (err, result) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ error: "Error registrando usuario" });
+        }
+        res.json({ message: "Usuario registrado exitosamente" });
+    });
+});
 
-    try {
+// LOGIN
+app.post("/login", (req, res) => {
+    const { correo, contraseña } = req.body;
 
-        // 🔵 SQLITE
-        if (db.prepare) {
-            const stmt = db.prepare(`
-                INSERT INTO users (username, email, password, phone)
-                VALUES (?, ?, ?, ?)
-            `);
-            const result = stmt.run(username, email, password, phone);
-
-            return res.json({ success: true, userId: result.lastInsertRowid });
+    const sql = "SELECT * FROM users WHERE correo = ?";
+    db.query(sql, [correo], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: "Error en el servidor" });
         }
 
-        // 🟡 MYSQL
-        const conn = await db;
-        const [result] = await conn.query(`
-            INSERT INTO users (username, email, password, phone)
-            VALUES (?, ?, ?, ?)
-        `, [username, email, password, phone]);
+        if (results.length === 0) {
+            return res.status(401).json({ error: "Correo no registrado" });
+        }
 
-        return res.json({ success: true, userId: result.insertId });
+        const user = results[0];
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error al registrar usuario' });
-    }
+        // Comparar contraseñas
+        const valid = bcrypt.compareSync(contraseña, user.contraseña);
+
+        if (!valid) {
+            return res.status(401).json({ error: "Contraseña incorrecta" });
+        }
+
+        res.json({ message: "Login exitoso", user });
+    });
 });
-app.post("/login", async (req, res) => {
-  const { email, password, phone } = req.body;
-
-  try {
-    let user;
-
-    // SQLITE
-    if (db.prepare) {
-      user = db.prepare(
-        "SELECT * FROM users WHERE email = ? AND password = ? AND phone = ?"
-      ).get(email, password, phone);
-    } 
-    // MYSQL
-    else {
-      const conn = await db;
-      const [rows] = await conn.query(
-        "SELECT * FROM users WHERE email = ? AND password = ? AND phone = ?",
-        [email, password, phone]
-      );
-      user = rows[0];
-    }
-
-    if (!user) {
-      return res.status(400).json({ success: false, error: "Credenciales incorrectas" });
-    }
-
-    res.json({ success: true, user });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, error: "Error interno del servidor" });
-  }
-});
-
 
 app.listen(3000, () => {
-    console.log("🚀 Servidor backend corriendo en puerto 3000");
+    console.log("Servidor corriendo en http://localhost:3000");
 });
