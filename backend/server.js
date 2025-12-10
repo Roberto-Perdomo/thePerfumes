@@ -52,6 +52,20 @@ app.post("/login", (req, res) => {
     });
 });
 
+// OBTENER TODOS LOS PRODUCTOS
+app.get("/products", (req, res) => {
+  const sql = "SELECT * FROM products";
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ error: "Error obteniendo productos" });
+    }
+    res.json(results);
+  });
+});
+
+
 app.listen(3000, () => {
     console.log("Servidor corriendo en http://localhost:3000");
 });

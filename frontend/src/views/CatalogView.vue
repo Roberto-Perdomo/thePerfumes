@@ -61,17 +61,18 @@ import { useRouter } from "vue-router"
 const router = useRouter()
 
 /* Base de datos (igual que antes) */
-const perfumes = [
-  { id: 1, nombre: "Noir Élégance", categoria: "amaderado", precio: 89.99,
-    descripcion: "Notas de cedro, vetiver y cuero", volumen: "100ml",
-    imagen: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400&h=500&fit=crop" },
-  { id: 2, nombre: "Arctic Storm", categoria: "fresco", precio: 75.99,
-    descripcion: "Cítricos con menta y bergamota", volumen: "100ml",
-    imagen: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&h=500&fit=crop" },
-  { id: 3, nombre: "Shadow King", categoria: "oriental", precio: 95.99,
-    descripcion: "Ámbar, especias y vainilla oscura", volumen: "100ml",
-    imagen: "https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=500&fit=crop" }
-]
+const perfumes = ref([])
+
+import { onMounted } from "vue"
+
+onMounted(async () => {
+  try {
+    const res = await fetch("http://localhost:3000/products")
+    perfumes.value = await res.json()
+  } catch (err) {
+    console.error("Error cargando productos", err)
+  }
+})
 
 /* Estados */
 const search = ref('')
@@ -100,7 +101,7 @@ const cartCount = computed(() =>
 
 /* Filtrar productos */
 const filteredProducts = computed(() => {
-  return perfumes.filter(p => {
+  return perfumes.value.filter(p => {
     const matchesSearch =
       p.nombre.toLowerCase().includes(search.value.toLowerCase()) ||
       p.descripcion.toLowerCase().includes(search.value.toLowerCase())
