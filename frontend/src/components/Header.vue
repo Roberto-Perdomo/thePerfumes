@@ -1,8 +1,12 @@
 <script setup>
 // Recibimos la función desde App.vue
 const props = defineProps({
-  openRegisterModal: Function
+  openRegisterModal: Function,
+  openLoginModal: Function,
+  user: Object,
+  logout: Function
 })
+
 </script>
 
 <template>
@@ -20,16 +24,30 @@ const props = defineProps({
         <li><router-link to="/catalogo" class="nav-link">Perfumes</router-link></li>
 
         <!-- Aquí modificamos únicamente este enlace -->
-        <li>
-          <a 
-            href="#contacto"
-            class="nav-link"
-            @click.prevent="props.openRegisterModal"
-          >
-            Iniciar sesión
-          </a>
-        </li>
+      <li v-if="!user">
+  <a 
+    href="#"
+    class="nav-link"
+    @click.prevent="openLoginModal"
+  >
+    Iniciar sesión
+  </a>
+</li>
+
+<li v-else class="nav-user">
+  <span class="nav-link">
+    Hola {{ user.nombre }}
+  </span>
+  <a 
+    href="#"
+    class="nav-link"
+    @click.prevent="logout"
+  >
+    Cerrar sesión
+  </a>
+</li>
       </ul>
+      
 
       <div class="nav-toggle" id="nav-toggle">
         <span class="bar"></span>

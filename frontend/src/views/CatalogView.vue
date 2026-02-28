@@ -11,26 +11,8 @@
       @increase="increaseQty"
       @decrease="decreaseQty"
       @pay="goToPayment"
-
     />
 
-    <!-- Modal de pago -->
-    <div class="modal" v-if="showPayment">
-      <div class="modal-box">
-        <h2>Pago</h2>
-        <p>Total a pagar: <strong>${{ total }}</strong></p>
-
-        <button class="pay-complete" @click="completePayment">
-          Confirmar pago
-        </button>
-
-        <button class="modal-close" @click="showPayment = false">
-          Cancelar
-        </button>
-      </div>
-    </div>
-
-    <!-- Contenido original del catálogo -->
     <div class="container">
       <CatalogSearch v-model="search" />
 
@@ -52,72 +34,142 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter } from "vue-router"
+
 import CatalogSearch from '../components/catalog/CatalogSearch.vue'
 import CatalogFilters from '../components/catalog/CatalogFilters.vue'
 import ProductsGrid from '../components/catalog/ProductsGrid.vue'
 import Carrito from '../components/catalog/Carrito.vue'
-import { useRouter } from "vue-router"
+
+/* ================================
+   🔥 RECIBIR USER DESDE APP.VUE
+================================ */
+
+const props = defineProps({
+  user: Object
+})
+
+const user = computed(() => props.user)
+
 const router = useRouter()
 
-/* Base de datos (igual que antes) */
-const perfumes = ref([])
+/* ================================
+   PRODUCTOS DESDE BACKEND
+================================ */
 
-import { onMounted } from "vue"
+const perfumes = ref([])
 
 onMounted(async () => {
   try {
     const res = await fetch("http://localhost:3000/products")
-    perfumes.value = await res.json()
+
+    if (!res.ok) {
+      throw new Error("Error en la respuesta del servidor")
+    }
+
+    const data = await res.json()
+    perfumes.value = Array.isArray(data) ? data : []
+
+    console.log("Productos cargados:", perfumes.value)
+
   } catch (err) {
-    console.error("Error cargando productos", err)
+    console.error("Error cargando productos:", err)
   }
 })
 
-/* Estados */
+/* ================================
+   FILTROS
+================================ */
+
 const search = ref('')
 const category = ref('todos')
 
-/* Carrito: inicializa desde localStorage si existe */
-const CART_KEY = 'cart-data'
-const cart = ref(JSON.parse(localStorage.getItem(CART_KEY) || '[]'))
-
-const cartOpen = ref(false)
-const showPayment = ref(false)
-
-/* Bandera para evitar que el watcher reescriba justo mientras limpiamos */
-const persistenceDisabled = ref(false)
-
-/* Guardar carrito cada vez que cambie (salvo cuando persistenceDisabled = true) */
-watch(cart, (value) => {
-  if (persistenceDisabled.value) return
-  localStorage.setItem(CART_KEY, JSON.stringify(value))
-}, { deep: true })
-
-/* Cantidad total */
-const cartCount = computed(() =>
-  cart.value.reduce((sum, item) => sum + (item.qty || 0), 0)
-)
-
-/* Filtrar productos */
 const filteredProducts = computed(() => {
   return perfumes.value.filter(p => {
+    const nombre = p.nombre?.toLowerCase() || ''
+    const descripcion = p.descripcion?.toLowerCase() || ''
+    const categoria = p.categoria || ''
+
     const matchesSearch =
-      p.nombre.toLowerCase().includes(search.value.toLowerCase()) ||
-      p.descripcion.toLowerCase().includes(search.value.toLowerCase())
+      nombre.includes(search.value.toLowerCase()) ||
+      descripcion.includes(search.value.toLowerCase())
 
     const matchesCategory =
-      category.value === 'todos' || p.categoria === category.value
+      category.value === 'todos' || categoria === category.value
 
     return matchesSearch && matchesCategory
   })
 })
 
-/* Funciones del carrito */
+/* ================================
+   CARRITO (POR USUARIO)
+================================ */
+
+const cart = ref([])
+const cartOpen = ref(false)
+
+/* 🔥 Generar key dinámica */
+function getCartKey() {
+  return user.value
+    ? `cart-user-${user.value.id}`
+    : 'cart-guest'
+}
+
+/* 🔥 Cargar carrito correcto */
+function loadCart() {
+  const key = getCartKey()
+  cart.value = JSON.parse(localStorage.getItem(key) || '[]')
+}
+
+/* 🔥 Guardar carrito correcto */
+function saveCart() {
+  const key = getCartKey()
+  localStorage.setItem(key, JSON.stringify(cart.value))
+}
+
+/* Cargar al montar */
+onMounted(() => {
+  loadCart()
+})
+
+/* Guardar cuando cambie */
+watch(cart, () => {
+  saveCart()
+}, { deep: true })
+
+/* 🔥 Cuando cambie el usuario */
+watch(user, () => {
+  loadCart()
+  cartOpen.value = false
+})
+
+/* ================================
+   COMPUTED
+================================ */
+
+const cartCount = computed(() =>
+  cart.value.reduce((sum, item) => sum + (item.qty || 0), 0)
+)
+
+const total = computed(() =>
+  cart.value
+    .reduce((sum, item) => sum + (item.precio * (item.qty || 0)), 0)
+    .toFixed(2)
+)
+
+/* ================================
+   FUNCIONES CARRITO
+================================ */
+
 function addToCart(product) {
   const found = cart.value.find(p => p.id === product.id)
-  if (found) found.qty++
-  else cart.value.push({ ...product, qty: 1 })
+
+  if (found) {
+    found.qty++
+  } else {
+    cart.value.push({ ...product, qty: 1 })
+  }
 }
 
 function increaseQty(item) {
@@ -125,88 +177,26 @@ function increaseQty(item) {
 }
 
 function decreaseQty(item) {
-  if (item.qty > 1) item.qty--
-  else cart.value = cart.value.filter(p => p.id !== item.id)
+  if (item.qty > 1) {
+    item.qty--
+  } else {
+    cart.value = cart.value.filter(p => p.id !== item.id)
+  }
 }
 
-const total = computed(() =>
-  cart.value.reduce((sum, item) => sum + (item.precio * (item.qty || 0)), 0).toFixed(2)
-)
+/* ================================
+   PAGO
+================================ */
 
-/* Navegar a pago */
 function goToPayment() {
   router.push({ path: '/pago', query: { total: total.value } })
 }
-
-function completePayment() {
-  alert("Pago completado con éxito!")
-
-  // 👇 evita que el watcher vuelva a escribir
-  persistenceDisabled.value = true
-
-  // 👇 limpia todo
-  cart.value = []
-  localStorage.setItem(CART_KEY, JSON.stringify([]))
-
-  // 👇 reactiva persistencia 50ms después 
-  setTimeout(() => {
-    persistenceDisabled.value = false
-  }, 50)
-
-  // Cerrar modales
-  showPayment.value = false
-  cartOpen.value = false
-
-  // Redirigir si quieres
-  router.push('/catalogo')
-}
-
 </script>
 
-
-
-
 <style scoped>
-
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 5000;
-}
-
-.modal-box {
-  background: white;
-  padding: 25px;
-  width: 300px;
-  border-radius: 10px;
+.no-results {
   text-align: center;
-}
-
-.pay-complete,
-.modal-close {
-  width: 100%;
-  padding: 10px;
-  margin-top: 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.pay-complete {
-  background: green;
-  color: white;
-}
-
-.modal-close {
-  background: red;
-  color: white;
+  margin-top: 30px;
+  font-weight: bold;
 }
 </style>

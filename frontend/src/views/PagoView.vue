@@ -42,21 +42,34 @@ onMounted(() => {
     if (saved) total.value = saved
   }
 })
+async function confirmarPago() {
+  const cart = JSON.parse(localStorage.getItem("cart-data") || "[]");
+  const user = JSON.parse(localStorage.getItem("user"));        // ajustar clave
+  const token = localStorage.getItem("token");
 
-function confirmarPago() {
-  alert("Pago exitoso! 🟢")
+  if (!user || !token) {
+    alert("Debes iniciar sesión para comprar.");
+    return router.push("/login");
+  }
 
-  // LIMPIAR TOTAL DE PAGO
-  localStorage.removeItem("payment_total")
+  const res = await fetch("http://localhost:3000/crear-pedido", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify({
+      total: total.value,
+      items: cart
+    })
+  });
 
-  // 🔥 LIMPIAR CARRITO COMPLETAMENTE
-  localStorage.setItem("cart-data", JSON.stringify([]))
-
-  // Opcional: evitar que Vue vuelva a cargar datos viejos
-  sessionStorage.setItem("cart_cleared", "1")
-
-  router.push("/catalogo")
+  const data = await res.json();
+  console.log("RESPUESTA CREAR-PEDIDO:", data);
+  
 }
+
+
 
 </script>
 
