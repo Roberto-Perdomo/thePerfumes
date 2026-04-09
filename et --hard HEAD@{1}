@@ -1,0 +1,15 @@
+[33mc635421[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: pull origin main --rebase (start): checkout c63542199a5e840eb52ba1f8196f1ba194c1bb4c
+[33m77841e4[m[33m ([m[1;32mmain[m[33m)[m HEAD@{1}: commit: Update frontend y backend v1.0.1
+[33mb60d787[m HEAD@{2}: commit: Esta es la version 1.0.0 del proyecto
+[33m07c1ee9[m HEAD@{3}: commit: commit final parte del frontend
+[33m323a206[m HEAD@{4}: reset: moving to origin/main
+[33m1cfaff2[m HEAD@{5}: reset: moving to origin/main
+[33m7b1c12c[m HEAD@{6}: commit: ya no se que comi es sorry
+[33m5915b86[m HEAD@{7}: commit: commit 10 se agrego carrito
+[33medee841[m HEAD@{8}: pull origin main: Fast-forward
+[33m4014597[m HEAD@{9}: commit: 6 commit
+[33m9bd0d96[m HEAD@{10}: pull origin main: Fast-forward
+[33m032d77c[m HEAD@{11}: commit: cuarto commit
+[33m56448eb[m HEAD@{12}: pull origin main: Fast-forward
+[33m4cc7b72[m HEAD@{13}: Branch: renamed refs/heads/main to refs/heads/main
+[33m4cc7b72[m HEAD@{15}: commit (initial): primer commit

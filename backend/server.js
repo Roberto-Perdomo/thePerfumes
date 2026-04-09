@@ -106,62 +106,7 @@ app.get("/products", (req, res) => {
 // ==========================
 //  CREAR PEDIDO (PROTEGIDO)
 // ==========================
-/*app.post("/crear-pedido", verificarToken, (req, res) => {
-    console.log("🔵 Entró a /crear-pedido");
 
-    const { total, items } = req.body;
-    console.log("📦 BODY:", req.body);
-
-    if (!total || !items || items.length === 0) {
-        console.log("❌ Datos incompletos");
-        return res.status(400).json({ error: "Datos incompletos del pedido" });
-    }
-
-    const user_id = req.user.id;
-    console.log("👤 Usuario desde token:", req.user);
-
-    const sqlOrder = "INSERT INTO orders (user_id, total) VALUES (?, ?)";
-    db.query(sqlOrder, [user_id, total], (err, result) => {
-
-        if (err) {
-            console.error("❌ Error creando pedido:", err);
-            return res.status(500).json({ error: "Error creando pedido" });
-        }
-
-        console.log("✅ Pedido insertado:", result);
-
-        const orderId = result.insertId;
-
-        const sqlItem = `
-            INSERT INTO order_items (order_id, product_id, cantidad, precio)
-            VALUES ?
-        `;
-
-        const values = items.map(item => [
-            orderId,
-            item.id,
-            item.qty,
-            item.precio
-        ]);
-
-        console.log("🧾 Items a insertar:", values);
-
-        db.query(sqlItem, [values], (err2) => {
-
-            if (err2) {
-                console.error("❌ Error guardando items:", err2);
-                return res.status(500).json({ error: "Error guardando items" });
-            }
-                
-            console.log("✅ Items insertados");
-            res.json({ message: "Pedido registrado", orderId });
-        });
-    });
-});
-
-
-
-*/
 app.post("/crear-pedido", verificarToken, (req, res) => {
     console.log("🔵 Entró a /crear-pedido");
 
