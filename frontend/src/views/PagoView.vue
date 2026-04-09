@@ -19,60 +19,103 @@
 
   </div>
 </template>
-
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted, computed } from "vue"
 import { useRoute, useRouter } from "vue-router"
+
+/* 🔥 RECIBIR USUARIO DESDE APP */
+const props = defineProps({
+  user: Object
+})
+
+const user = computed(() => props.user)
 
 const route = useRoute()
 const router = useRouter()
 
 const total = ref("0.00")
 
+/* ================================
+   OBTENER TOTAL
+================================ */
 onMounted(() => {
-  // 1. Primero tomar el total desde la URL
   const urlTotal = route.query.total
 
   if (urlTotal) {
     total.value = urlTotal
     localStorage.setItem("payment_total", urlTotal)
   } else {
-    // 2. Si no viene, lo tomamos del localStorage
     const saved = localStorage.getItem("payment_total")
     if (saved) total.value = saved
   }
-})
-async function confirmarPago() {
-  const cart = JSON.parse(localStorage.getItem("cart-data") || "[]");
-  const user = JSON.parse(localStorage.getItem("user"));        // ajustar clave
-  const token = localStorage.getItem("token");
 
-  if (!user || !token) {
-    alert("Debes iniciar sesión para comprar.");
-    return router.push("/login");
+  /* 🔥 VALIDAR USUARIO CORRECTAMENTE */
+  if (!user.value) {
+    alert("Debes iniciar sesión para comprar.")
+    router.push("/catalogo")
   }
+})
 
-  const res = await fetch("http://localhost:3000/crear-pedido", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + token
-    },
-    body: JSON.stringify({
-      total: total.value,
-      items: cart
-    })
-  });
-
-  const data = await res.json();
-  console.log("RESPUESTA CREAR-PEDIDO:", data);
-  
+/* ================================
+   GENERAR KEY CORRECTA DEL CARRITO
+================================ */
+function getCartKey() {
+  return user.value
+    ? `cart-user-${user.value.id}`
+    : "cart-guest"
 }
 
+/* ================================
+   CONFIRMAR PAGO
+================================ */
+async function confirmarPago() {
 
+ if (!user.value) {
+  alert("Debes iniciar sesión para comprar.")
+  return router.push("/catalogo")
+}
 
+const cart = JSON.parse(
+  localStorage.getItem(getCartKey()) || "[]"
+)
+
+// 🔥 VALIDACIÓN NUEVA
+if (!cart || cart.length === 0) {
+  alert("El carrito está vacío 🛒")
+  return
+}
+
+const token = localStorage.getItem("token")
+
+// 🔥 VALIDAR TOTAL TAMBIÉN
+if (!total.value || Number(total.value) <= 0) {
+  alert("Total inválido ❌")
+  return
+}
+
+const res = await fetch("http://localhost:3000/crear-pedido", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + token
+  },
+  body: JSON.stringify({
+    total: total.value,
+    items: cart
+  })
+})
+
+const data = await res.json()
+console.log("RESPUESTA CREAR-PEDIDO:", data)
+
+alert("Pago realizado con éxito ✅")
+
+/* 🔥 LIMPIAR CARRITO DEL USUARIO */
+localStorage.setItem(getCartKey(), JSON.stringify([]))
+
+router.push("/catalogo")
+}
 </script>
-
 <style scoped>
 .payment-wrapper {
   display: flex;

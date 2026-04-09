@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import HomeView from '@/views/HomeView.vue'
 import CatalogView from '@/views/CatalogView.vue'
-import PagoView from '@/views/PagoView.vue'
 
 const routes = [
   {
@@ -13,20 +12,20 @@ const routes = [
   {
     path: '/catalogo',
     name: 'catalogo',
-    component: CatalogView
+    component: CatalogView,
+    props: true   // 🔥 también importante
   },
   {
     path: "/pago",
-      name: "Pago",
-      component: () => import("../views/PagoView.vue")
+    name: "Pago",
+    component: () => import("../views/PagoView.vue"),
+    props: true   // 🔥 ESTO SOLUCIONA TU PROBLEMA
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-
-  // Scroll suave a anclas (#inicio, #contacto, etc)
   scrollBehavior(to) {
     if (to.hash) {
       return {

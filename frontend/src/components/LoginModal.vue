@@ -99,21 +99,21 @@ export default {
         });
 
         const data = await response.json();
+          if (!response.ok) {
+            this.errorMsg = data.error || "Error en el inicio de sesión.";
+            return;
+          }
 
-        if (!response.ok) {
-          this.errorMsg = data.error || "Error en el inicio de sesión.";
-          return;
-        }
+          // 🔥 GUARDAR TOKEN TAMBIÉN
+          localStorage.setItem("user", JSON.stringify(data.user));
+          localStorage.setItem("token", data.token);
 
-        // Guardar usuario en localStorage
-        localStorage.setItem("user", JSON.stringify(data.user));
+          this.$emit("login-success", data.user);
 
-        this.$emit("login-success", data.user);
+          alert(`Bienvenido nuevamente, ${data.user.nombre} 👋`);
 
-        alert(`Bienvenido nuevamente, ${data.user.nombre} 👋`);
-
-        this.resetForm();
-        this.closeModal();
+          this.resetForm();
+          this.closeModal();
 
       } catch (error) {
         console.error(error);
