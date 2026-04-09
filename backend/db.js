@@ -2,8 +2,8 @@ const mysql = require("mysql2");
 
 const db = mysql.createConnection({
     host: "localhost",
-    user: "root",
-    password: "Angel2004", // tu contraseña, si no tienes, déjalo vacío
+    user: "perfume_user",
+    password: "Perfume123!", 
     database: "perfume"
 });
 
@@ -16,3 +16,4 @@ db.connect((err) => {
 });
 
 module.exports = db;
+
