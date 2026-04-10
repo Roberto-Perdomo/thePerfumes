@@ -1,15 +1,21 @@
 const express = require("express");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("./db");
 
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
 
-const SECRET = "MI_SECRETO_SUPER_SEGURO"; // Cambia esto por algo seguro
+// ==========================
+//  CONFIGURACIÓN
+// ==========================
+app.use(express.json());
+
+app.use(cors({
+    origin: process.env.FRONTEND_URL || "*"
+}));
+
+const SECRET = process.env.JWT_SECRET || "dev_secret"; // en producción usa variable de entorno
 
 // ==========================
 //  MIDDLEWARE PARA TOKEN
@@ -28,7 +34,7 @@ function verificarToken(req, res, next) {
             return res.status(401).json({ error: "Token inválido" });
         }
 
-        req.user = decoded; // Guardamos los datos del usuario
+        req.user = decoded;
         next();
     });
 }
@@ -48,7 +54,7 @@ app.post("/register", (req, res) => {
     const sql = "INSERT INTO users (nombre, correo, telefono, contraseña) VALUES (?, ?, ?, ?)";
     db.query(sql, [nombre, correo, telefono, hash], (err) => {
         if (err) {
-            console.log(err);
+            console.error("Error registrando usuario:", err);
             return res.status(500).json({ error: "Error registrando usuario" });
         }
         res.json({ message: "Usuario registrado exitosamente" });
@@ -63,17 +69,22 @@ app.post("/login", (req, res) => {
 
     const sql = "SELECT * FROM users WHERE correo = ?";
     db.query(sql, [correo], (err, results) => {
-        if (err) return res.status(500).json({ error: "Error en el servidor" });
+        if (err) {
+            console.error("Error en login:", err);
+            return res.status(500).json({ error: "Error en el servidor" });
+        }
 
-        if (results.length === 0)
+        if (results.length === 0) {
             return res.status(401).json({ error: "Correo no registrado" });
+        }
 
         const user = results[0];
 
         const valid = bcrypt.compareSync(contraseña, user.contraseña);
-        if (!valid) return res.status(401).json({ error: "Contraseña incorrecta" });
+        if (!valid) {
+            return res.status(401).json({ error: "Contraseña incorrecta" });
+        }
 
-        // Generar token
         const token = jwt.sign(
             { id: user.id, correo: user.correo },
             SECRET,
@@ -83,7 +94,11 @@ app.post("/login", (req, res) => {
         res.json({
             message: "Login exitoso",
             token,
-            user: { id: user.id, nombre: user.nombre, correo: user.correo }
+            user: {
+                id: user.id,
+                nombre: user.nombre,
+                correo: user.correo
+            }
         });
     });
 });
@@ -96,7 +111,7 @@ app.get("/products", (req, res) => {
 
     db.query(sql, (err, results) => {
         if (err) {
-            console.log(err);
+            console.error("Error obteniendo productos:", err);
             return res.status(500).json({ error: "Error obteniendo productos" });
         }
         res.json(results);
@@ -106,13 +121,9 @@ app.get("/products", (req, res) => {
 // ==========================
 //  CREAR PEDIDO (PROTEGIDO)
 // ==========================
-
 app.post("/crear-pedido", verificarToken, (req, res) => {
-    console.log("🔵 Entró a /crear-pedido");
-
     const { total, items } = req.body;
 
-    // 🔥 VALIDACIÓN FUERTE
     if (
         !items ||
         !Array.isArray(items) ||
@@ -120,7 +131,6 @@ app.post("/crear-pedido", verificarToken, (req, res) => {
         !total ||
         Number(total) <= 0
     ) {
-        console.log("❌ Pedido inválido:", { total, items });
         return res.status(400).json({ error: "Carrito vacío o total inválido" });
     }
 
@@ -129,7 +139,7 @@ app.post("/crear-pedido", verificarToken, (req, res) => {
     const sqlOrder = "INSERT INTO orders (user_id, total) VALUES (?, ?)";
     db.query(sqlOrder, [user_id, total], (err, result) => {
         if (err) {
-            console.error("❌ Error creando pedido:", err);
+            console.error("Error creando pedido:", err);
             return res.status(500).json({ error: "Error creando pedido" });
         }
 
@@ -149,7 +159,7 @@ app.post("/crear-pedido", verificarToken, (req, res) => {
 
         db.query(sqlItem, [values], (err2) => {
             if (err2) {
-                console.error("❌ Error guardando items:", err2);
+                console.error("Error guardando items:", err2);
                 return res.status(500).json({ error: "Error guardando items" });
             }
 
@@ -157,6 +167,19 @@ app.post("/crear-pedido", verificarToken, (req, res) => {
         });
     });
 });
-app.listen(3000, () => {
-    console.log("Servidor corriendo en http://localhost:3000");
+
+// ==========================
+//  HEALTH CHECK (IMPORTANTE)
+// ==========================
+app.get("/", (req, res) => {
+    res.send("API funcionando 🚀");
+});
+
+// ==========================
+//  PUERTO DINÁMICO (CLAVE)
+// ==========================
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en puerto ${PORT}`);
 });
