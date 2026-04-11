@@ -62,7 +62,7 @@ const perfumes = ref([])
 
 onMounted(async () => {
   try {
-    const res = await fetch("http://localhost:3000/products")
+    const res = await fetch("https://theperfumes.onrender.com/products")
 
     if (!res.ok) {
       throw new Error("Error en la respuesta del servidor")

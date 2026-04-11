@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "*"
+  origin: "https://the-perfumes.vercel.app"
 }));
 
 const SECRET = process.env.JWT_SECRET || "dev_secret"; // en producción usa variable de entorno
