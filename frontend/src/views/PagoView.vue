@@ -93,7 +93,7 @@ if (!total.value || Number(total.value) <= 0) {
   return
 }
 
-const res = await fetch("http://localhost:3000/crear-pedido", {
+const res = await fetch("https://theperfumes.onrender.com/crear-pedidos", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",

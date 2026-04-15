@@ -65,8 +65,8 @@ onMounted(async () => {
   // https://theperfumes.onrender.com/products  produccion 
   // http://localhost:3000//products local 
   try {
-       const API = import.meta.env.VITE_API_URL;
-       const res = await fetch(`${API}/products`)
+       
+    const res = await fetch("https://theperfumes.onrender.com/products ")
 
     if (!res.ok) {
       throw new Error("Error en la respuesta del servidor")
