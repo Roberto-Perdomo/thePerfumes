@@ -61,8 +61,10 @@ const router = useRouter()
 const perfumes = ref([])
 
 onMounted(async () => {
+
+  // https://theperfumes.onrender.com/products 
   try {
-    const res = await fetch("https://theperfumes.onrender.com/products")
+    const res = await fetch("http://localhost:3000//products")
 
     if (!res.ok) {
       throw new Error("Error en la respuesta del servidor")
